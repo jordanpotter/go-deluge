@@ -32,6 +32,10 @@ func (t *Torrent) Path() string {
 }
 
 func (c *Client) AddTorrent(url, incompletePath, completePath string) (string, error) {
+	if err := c.loginIfExpired(); err != nil {
+		return "", errors.Wrap(err, "failed login if expired")
+	}
+
 	options := map[string]interface{}{
 		"download_location":   incompletePath,
 		"move_on_completed":   true,
@@ -44,6 +48,10 @@ func (c *Client) AddTorrent(url, incompletePath, completePath string) (string, e
 }
 
 func (c *Client) Torrent(id string) (*Torrent, error) {
+	if err := c.loginIfExpired(); err != nil {
+		return nil, errors.Wrap(err, "failed login if expired")
+	}
+
 	keys := []string{}
 
 	var result Torrent
@@ -56,6 +64,10 @@ func (c *Client) Torrent(id string) (*Torrent, error) {
 }
 
 func (c *Client) Torrents() ([]*Torrent, error) {
+	if err := c.loginIfExpired(); err != nil {
+		return nil, errors.Wrap(err, "failed login if expired")
+	}
+
 	filter := map[string]string{}
 	keys := []string{}
 

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -17,13 +19,13 @@ const (
 )
 
 type requestData struct {
-	ID     int         `json:"id"`
+	ID     string      `json:"id"`
 	Method string      `json:"method"`
 	Params interface{} `json:"params"`
 }
 
 type responseData struct {
-	ID     int             `json:"id"`
+	ID     string          `json:"id"`
 	Result json.RawMessage `json:"result"`
 	Err    interface{}     `json:"error"`
 }
@@ -48,9 +50,11 @@ func (c *Client) rpc(method string, params interface{}, dest interface{}) error 
 
 	req.Header.Set("Content-Type", "application/json")
 
+	c.cookiesMutex.Lock()
 	for _, cookie := range c.cookies {
 		req.AddCookie(cookie)
 	}
+	c.cookiesMutex.Unlock()
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -62,7 +66,9 @@ func (c *Client) rpc(method string, params interface{}, dest interface{}) error 
 		return errors.Errorf("received status code %d", resp.StatusCode)
 	}
 
+	c.cookiesMutex.Lock()
 	c.cookies = resp.Cookies()
+	c.cookiesMutex.Unlock()
 
 	respData := responseData{}
 	if err = json.NewDecoder(resp.Body).Decode(&respData); err != nil {
@@ -81,13 +87,13 @@ func (c *Client) rpc(method string, params interface{}, dest interface{}) error 
 		return errors.Wrap(err, "failed to parse result")
 	}
 
+	c.lastRequestMutex.Lock()
+	c.lastRequest = time.Now()
+	c.lastRequestMutex.Unlock()
+
 	return nil
 }
 
-func (c *Client) requestID() int {
-	c.requestCountMutex.Lock()
-	defer c.requestCountMutex.Unlock()
-
-	c.requestCount++
-	return c.requestCount
+func (c *Client) requestID() string {
+	return strconv.FormatInt(time.Now().UnixNano(), 36)
 }
