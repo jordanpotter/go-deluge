@@ -3,7 +3,7 @@
 Basic client library to interact with Deluge
 
 ```
-client, err := New("http://awesome.com", "p4Ssw0Rd")
+client := New("http://awesome.com", "p4Ssw0Rd")
 
 // Add a torrent given the URL
 id, err := client.AddTorrent("http://releases.ubuntu.com/17.10/ubuntu-17.10.1-desktop-amd64.iso.torrent",
