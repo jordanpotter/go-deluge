@@ -101,6 +101,8 @@ func (c *Client) PauseTorrent(id string) error {
 		return errors.Wrap(err, "failed login if expired")
 	}
 
-	err := c.rpc(PauseTorrent, []interface{}{id}, nil)
+	ids := []string{id}
+
+	err := c.rpc(PauseTorrent, []interface{}{ids}, nil)
 	return errors.Wrap(err, "failed rpc")
 }
