@@ -12,10 +12,13 @@ import (
 )
 
 const (
-	Login       = "auth.login"
-	AddTorrent  = "core.add_torrent_url"
-	GetTorrent  = "core.get_torrent_status"
-	GetTorrents = "core.get_torrents_status"
+	Login         = "auth.login"
+	AddTorrent    = "core.add_torrent_url"
+	GetTorrent    = "core.get_torrent_status"
+	GetTorrents   = "core.get_torrents_status"
+	RemoveTorrent = "core.remove_torrent"
+	PauseTorrent  = "core.pause_torrent"
+	MoveStorage   = "core.move_storage"
 )
 
 type requestData struct {
@@ -83,8 +86,10 @@ func (c *Client) rpc(method string, params interface{}, dest interface{}) error 
 		return errors.New("mismatched request/response ids")
 	}
 
-	if err = json.Unmarshal(respData.Result, dest); err != nil {
-		return errors.Wrap(err, "failed to parse result")
+	if dest != nil {
+		if err = json.Unmarshal(respData.Result, dest); err != nil {
+			return errors.Wrap(err, "failed to parse result")
+		}
 	}
 
 	c.lastRequestMutex.Lock()

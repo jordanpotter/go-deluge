@@ -85,3 +85,22 @@ func (c *Client) Torrents() ([]*Torrent, error) {
 
 	return torrents, nil
 }
+
+func (c *Client) RemoveTorrent(id string, removeData bool) (bool, error) {
+	if err := c.loginIfExpired(); err != nil {
+		return false, errors.Wrap(err, "failed login if expired")
+	}
+
+	var result bool
+	err := c.rpc(RemoveTorrent, []interface{}{id, removeData}, &result)
+	return result, errors.Wrap(err, "failed rpc")
+}
+
+func (c *Client) PauseTorrent(id string) error {
+	if err := c.loginIfExpired(); err != nil {
+		return errors.Wrap(err, "failed login if expired")
+	}
+
+	err := c.rpc(PauseTorrent, []interface{}{id}, nil)
+	return errors.Wrap(err, "failed rpc")
+}
