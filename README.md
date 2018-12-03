@@ -15,4 +15,13 @@ torrent, err := client.Torrent(id)
 
 // Get information for all torrents
 torrents, err := client.Torrents()
+
+// Pause a torrent
+err := client.PauseTorrent(id)
+
+// Remove a torrent
+removed, err := client.RemoveTorrent(id, removeData)
+
+// Move a torrent's storage location
+err := client.MoveStorage(id, "/deluge/new/completed/path")
 ```
